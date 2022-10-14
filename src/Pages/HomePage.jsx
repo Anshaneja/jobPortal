@@ -1,85 +1,68 @@
 import React from "react";
 import { useState, useRef } from "react";
-import {MdWorkOutline, MdOutlineLocationOn} from "react-icons/md";
 import axios from "axios";
 import { useEffect } from "react";
-import Skeleton, { SkeletonTheme } from 'react-loading-skeleton';
+import ReturnJobs from "../Components/ReturnJobs";
+import JobSkeleton from "../Components/JobSkeleton";
+
+// css
 import 'react-loading-skeleton/dist/skeleton.css';
+
 const HomePage = () => {
 
     const [query , setQuery] = useState("");
     const queryRef = useRef("");
     const [jobs, setJobs] = useState([]);
-    const [loading, setLoading] = useState("")
+    const [jobsToShow, setJobsToShow] = useState([])
+    const [loading, setLoading] = useState("");
+
+
+    const [internship, setInternship] = useState(false);
+    const [ entry, setEntry] = useState(false);
+    const [ experienced, setExperienced] = useState(false);
+    const [ bengaluru, setBengaluru] = useState(false);
+    const [ hyderabad, setHyderabad] = useState(false);
+    const [ gurugram, setGurugram] = useState(false);
+
     
     // fetch data from api using axios from localhost:3001 in react
-    
-   
-
     useEffect(() => {
     const fetchData = async () => {
-        const response = await axios.get(`http://localhost:3001/jobs?search=${query}`);
+        const response = await axios.get(`https://jobportal-api.vercel.app/jobs?search=${query}`);
+        
         setJobs(response.data);
-        console.log(response.data);
+        setJobsToShow(response.data);
         setLoading(true);
     }
     fetchData();
     }, [query]);
-
-    function ReturnJobs(props){
-        return (
-            props.jobsArray.map( job => (
-            <div className=" flex p-6 flex-col gap-1 justify-center rounded-lg shadow-lg hover:shadow-xl">
-                <div className="flex justify-between">
-                    <div className="flex flex-col gap-1">
-                        <h3 className="text-xl font-bold text-primary"> {job.title}</h3>
-                        <h4 className="text-md text-gray-800">{job.company}</h4>
-                    </div>
-                    <div>
-                        <a className="text-white bg-primary px-5 py-2 text-sm rounded " target="_blank" rel="noreferrer" href={job.apply}>Apply</a>
-                    </div>
-                </div>
-                
-                <div className="flex justify-between">
-                    <span className="flex items-center text-sm">
-                        <MdWorkOutline  />
-                        <h5 className="">{job.experienceLevel}</h5>
-                    </span>
-                    <span className="flex items-center text-sm">
-                        <MdOutlineLocationOn  />
-                        <h5>{job.location}</h5>
-                    </span>  
-                </div>
-                <p className="text-sm text-gray-600">{job.description.slice(0,60)}...</p>
-                <div className="text-sm">
-                    <span className="font-semibold">Skills:</span>
-                    <span className="">{job.skills.join(', ')}</span>
-                </div>
-            </div>))
-            
-        );
-    }
-
-    function JobSkeleton(){
-        return [...Array(10)].map( () => 
-                <div className=" flex p-6 flex-col gap-1 justify-center rounded-lg shadow-lg hover:shadow-xl">
-                    <h3 className="text-xl font-bold text-primary"> <Skeleton width={140}/></h3>
-                    <h4 className="text-md text-gray-800"> <Skeleton width={80}/> </h4>
-                    <div className="flex justify-between">
-                        <span className="flex items-center text-sm">
-                            <h5 className=""> <Skeleton width={70} /> </h5>
-                        </span>
-                        <span className="flex items-center text-sm">
-                            <h5> <Skeleton width={100} /> </h5>
-                        </span>  
-                    </div>
-                    <Skeleton /> 
-                    <Skeleton /> 
-                </div> 
-        )
-    }
-
     
+    useEffect(()=> {
+        const data = jobs.filter( job => 
+            internship? job.experienceLevel === "Internship": true &&
+            entry? job.experienceLevel === "Entry Level": true &&
+            experienced? job.experienceLevel === "Experienced": true &&
+            bengaluru?job.location === "Bengaluru" :true &&
+            hyderabad?job.location === "Hyderabad" : true &&
+            gurugram?job.location === "Gurugram" : true 
+
+            
+        )
+        
+        setJobsToShow(data);
+        console.log(data);
+        console.log(internship);
+    }, [jobs,internship, entry, experienced, bengaluru, hyderabad, gurugram])
+
+    const Checkbox = ({ label, value, onChange }) => {
+        return (
+          <label>
+            <input type="checkbox" checked={value} onChange={onChange} />
+            {label}
+          </label>
+        );
+      };
+
     return (
         <div>
             <div className="p-8 ">
@@ -122,10 +105,56 @@ const HomePage = () => {
                 </div>
             </div> */}
 
-            {/* Job Cards */}
-            <div className="grid w-2/3 mx-auto pt-8 justify-center grid-cols-2 gap-x-6 gap-y-3">
-                {loading?<ReturnJobs jobsArray={jobs} /> : <JobSkeleton />}
+            {/* Filter SideBar */}
+            <div className="flex ">
+                <div className="flex flex-col gap-4 p-8 w-1/5">
+                    <h3 className=" text-2xl font-semibold my-5">Filters</h3>
+
+                    <div className="flex flex-col">
+                        <h4 className="text-lg font-semibold"> Experience</h4>
+                        <Checkbox
+                            label=" Internship"
+                            value={internship}
+                            onChange={()=> setInternship(!internship)}
+                        />
+                        <Checkbox
+                            label=" Entry Level"
+                            value={entry}
+                            onChange={()=> setEntry(!entry)}
+                        />
+                        <Checkbox
+                            label=" Experienced"
+                            value={experienced}
+                            onChange={()=> setExperienced(!experienced)}
+                        />
+                    </div>
+
+                    <div className="flex flex-col">
+                        <h4 className="text-lg font-semibold"> Location</h4>
+                        <Checkbox
+                            label=" Bengaluru"
+                            value={bengaluru}
+                            onChange={()=> setBengaluru(!bengaluru)}
+                        />
+                        <Checkbox
+                            label=" Hyderabad"
+                            value={hyderabad}
+                            onChange={()=> setHyderabad(!hyderabad)}
+                        />
+                        <Checkbox
+                            label=" Gurugram"
+                            value={gurugram}
+                            onChange={()=> setGurugram(!gurugram)}
+                        />
+                    </div>
+                    
+                </div>
+                {/* Job Cards */}
+                <div className="grid w-2/3 mx-auto py-8 justify-center grid-cols-2 gap-x-6 gap-y-3">
+                    {loading?<ReturnJobs jobsArray={jobsToShow} /> : <JobSkeleton />}
+                </div>
             </div>
+            
 
         </div>
 
