@@ -61,7 +61,17 @@ const HomePage = () => {
             {label}
           </label>
         );
-      };
+    };
+
+    function queryHandler(){
+        setLoading(false);
+        setQuery(queryRef.current.value);
+    }
+    function searchKeyDownHandler(e){
+        if(e.key === 'Enter'){
+            queryHandler();
+        }
+    }
 
     return (
         <div>
@@ -71,9 +81,9 @@ const HomePage = () => {
             {/* search bar  */}
             <div className="flex justify-center gap-2">
                 <div className="w-1/2">
-                    <input type="text" ref={queryRef} placeholder="Search for jobs" className="w-full p-4 border border-gray-400 rounded-lg outline-none" />
+                    <input type="text" onKeyDown={searchKeyDownHandler} ref={queryRef} placeholder="Search for jobs" className="w-full p-4 border border-gray-400 rounded-lg outline-none" />
                 </div>
-                <button onClick={() => setQuery(queryRef.current.value)} className="bg-primary px-5 py-2 rounded text-white"> Find jobs</button>
+                <button onClick={queryHandler} className="bg-primary px-5 py-2 rounded text-white"> Find jobs</button>
             </div>
 
             {/* Search Filters */}
