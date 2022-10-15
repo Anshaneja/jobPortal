@@ -36,18 +36,27 @@ const HomePage = () => {
     }
     fetchData();
     }, [query]);
+
+    
     
     useEffect(()=> {
-        const data = jobs.filter( job => 
-            internship? job.experienceLevel === "Internship": true &&
-            entry? job.experienceLevel === "Entry Level": true &&
-            experienced? job.experienceLevel === "Experienced": true &&
-            bengaluru?job.location === "Bengaluru" :true &&
-            hyderabad?job.location === "Hyderabad" : true &&
-            gurugram?job.location === "Gurugram" : true 
-
-            
-        )
+        function satisfyExperienceCondition(job){
+            return (internship || entry || experienced ) ? (
+                (internship? job.experienceLevel === "Internship": false) || 
+                (entry? job.experienceLevel === "Entry Level": false ) || 
+                (experienced? job.experienceLevel === "Experienced" : false)
+            ) : true ;
+        }
+    
+        function satisfyLocationCondition(job){
+            return (bengaluru || hyderabad || gurugram ) ?(
+                (bengaluru? job.location === "Bengaluru": false) || 
+                (hyderabad? job.location === "Hyderabad": false ) || 
+                (gurugram? job.location === "Gurugram" : false)
+            ): true 
+        }
+        
+        const data = jobs.filter( job => satisfyExperienceCondition(job) && satisfyLocationCondition(job))
         
         setJobsToShow(data);
         console.log(data);
